@@ -87,4 +87,16 @@ FixedBufferAllocator FixedBufferAllocator_Init(void* const memory, size_t capaci
 allocator_t FixedBufferAllocator_GetAllocator(FixedBufferAllocator* const fba);
 void FixedBufferAllocator_Reset(FixedBufferAllocator* const fba);
 
+// --Linear--
+typedef struct Totem_LinearAllocator
+{
+	allocator_t* const parent;
+	slice_t allocation;
+	size_t offset;
+	uint8_t alignment;
+} LinearAllocator;
+
+LinearAllocator LinearAllocator_Init(allocator_t* const parent);
+bool LinearAllocator_InitCapacity(LinearAllocator* const la, allocator_t* const parent, const size_t capacity);
+
 #endif // !_TOTEM_H
