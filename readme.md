@@ -4,7 +4,7 @@ Has a VTable interface for generic allocations and custom allocator implementati
 
 ## Current Allocators
 - [x] Fixed Buffer
-- [ ] Page
+- [x] Page
 - [ ] Brk/SBrk
 - [ ] Linear
 - [ ] Stack

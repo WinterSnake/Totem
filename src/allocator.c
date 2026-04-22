@@ -4,6 +4,7 @@
 	Written By: Ryan Smith
 */
 
+#include <assert.h>
 #include <string.h>
 #include "totem.h"
 
@@ -90,12 +91,22 @@ void Totem_Free(allocator_t* const allocator, slice_t* const memory, const uint8
 	*memory = (slice_t){0};
 }
 // Helpers
-uint16_t Totem_alignPointer(void** origin, const uint8_t alignment)
+uint8_t Totem_log2Alignment(const size_t alignment)
+{
+	assert(alignment > 0 && ((alignment & (alignment - 1)) == 0));
+	return (uint8_t)__builtin_ctzll(alignment);
+}
+size_t Totem_alignForward(const size_t size, const uint8_t alignment)
+{
+	size_t mask = (1ull << alignment) - 1;
+	return (size + mask) & ~mask;
+}
+size_t Totem_alignPointer(void** origin, const uint8_t alignment)
 {
 	size_t mask = (1ull << alignment) - 1;
 	uintptr_t raw = (uintptr_t)*origin;
 	uintptr_t aligned = (raw + mask) & ~mask;
-	uint16_t offset = (uint16_t)(aligned - raw);
+	size_t offset = aligned - raw;
 	*origin = (void*)aligned;
 	return offset;
 }

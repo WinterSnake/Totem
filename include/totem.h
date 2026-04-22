@@ -53,24 +53,24 @@ bool  Totem_RawResize(allocator_t* const allocator, slice_t* const memory, const
 void* Totem_RawRemap(allocator_t* const allocator, const slice_t memory, const size_t new_length, const uint8_t alignment);
 void  Totem_RawFree(allocator_t* const allocator, const slice_t memory, const uint8_t alignment);
 /// API: Core
-#define Totem_log2_align(n) (uint8_t)__builtin_ctzll((n))
+#define Totem_alignof(type) (uint8_t)__builtin_ctzll(alignof(type))
 #define Totem_Count_T(slice, type) ((slice).length / sizeof(type))
 #define Totem_Index_T(slice, type, i) ((type*)((slice).data) + (i))
 #define Totem_Index_ConstT(slice, type, i) ((const type*)((slice).data) + (i))
 slice_t Totem_Alloc(allocator_t* const allocator, const size_t length, const uint8_t alignment);
-#define Totem_Alloc_T(alloc, type, count) Totem_Alloc((alloc), sizeof(type) * (count), Totem_log2_align(alignof(type)))
-#define Totem_Create_T(alloc, type) ((type*)(Totem_Alloc((alloc), sizeof(type), Totem_log2_align(alignof(type)))).data)
+#define Totem_Alloc_T(alloc, type, count) Totem_Alloc((alloc), sizeof(type) * (count), Totem_alignof(type))
+#define Totem_Create_T(alloc, type) ((type*)(Totem_Alloc((alloc), sizeof(type), Totem_alignof(type))).data)
 bool    Totem_Resize(allocator_t* const allocator, slice_t* const memory, const size_t new_length, const uint8_t alignment);
-#define Totem_Resize_T(alloc, slice, type, count) Totem_Resize((alloc), (slice), sizeof(type) * (count), Totem_log2_align(alignof(type)))
+#define Totem_Resize_T(alloc, slice, type, count) Totem_Resize((alloc), (slice), sizeof(type) * (count), Totem_alignof(type))
 slice_t Totem_Remap(allocator_t* const allocator, slice_t* const memory, const size_t new_length, const uint8_t alignment);
-#define Totem_Remap_T(alloc, slice, type, count) Totem_Remap((alloc), (slice), sizeof(type) * (count), Totem_log2_align(alignof(type)))
+#define Totem_Remap_T(alloc, slice, type, count) Totem_Remap((alloc), (slice), sizeof(type) * (count), Totem_alignof(type))
 slice_t Totem_Realloc(allocator_t* const allocator, slice_t* const memory, const size_t new_length, const uint8_t alignment);
-#define Totem_Realloc_T(alloc, slice, type, count) Totem_Realloc((alloc), (slice), sizeof(type) * (count), Totem_log2_align(alignof(type)))
+#define Totem_Realloc_T(alloc, slice, type, count) Totem_Realloc((alloc), (slice), sizeof(type) * (count), Totem_alignof(type))
 void    Totem_Free(allocator_t* const allocator, slice_t* const memory, const uint8_t alignment);
-#define Totem_Free_T(alloc, slice, type) Totem_Free((alloc), (slice), Totem_log2_align(alignof(type)))
+#define Totem_Free_T(alloc, slice, type) Totem_Free((alloc), (slice), Totem_alignof(type))
 #define Totem_Delete_T(alloc, value, type) \
 	do {\
-		Totem_Free((alloc), &(slice_t){.data=*(value), .length=sizeof(type)}, Totem_log2_align(alignof(type))); \
+		Totem_Free((alloc), &(slice_t){.data=*(value), .length=sizeof(type)}, Totem_alignof(type)); \
 		*(value) = NULL; \
 	} while(0)
 
@@ -87,16 +87,7 @@ FixedBufferAllocator FixedBufferAllocator_Init(void* const memory, size_t capaci
 allocator_t FixedBufferAllocator_GetAllocator(FixedBufferAllocator* const fba);
 void FixedBufferAllocator_Reset(FixedBufferAllocator* const fba);
 
-// --Linear--
-typedef struct Totem_LinearAllocator
-{
-	allocator_t* const parent;
-	slice_t allocation;
-	size_t offset;
-	uint8_t alignment;
-} LinearAllocator;
-
-LinearAllocator LinearAllocator_Init(allocator_t* const parent);
-bool LinearAllocator_InitCapacity(LinearAllocator* const la, allocator_t* const parent, const size_t capacity);
+// --Page--
+extern allocator_t* const PageAllocator;
 
 #endif // !_TOTEM_H

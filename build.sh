@@ -10,7 +10,9 @@ mkdir --parents ".build/examples"
 LIBSTOTEM=".build/libstotem.a"
 $CC $FLAGS -I "include" -c -o ".build/allocator.o" "src/allocator.c"
 $CC $FLAGS -I "include" -c -o ".build/allocator.fixed_buffer.o" "src/allocator.fixed_buffer.c"
-$ARCHIVE crs $LIBSTOTEM ".build/allocator.o" ".build/allocator.fixed_buffer.o"
+$CC $FLAGS -I "include" -c -o ".build/allocator.page.o" "src/allocator.page.c"
+$ARCHIVE crs $LIBSTOTEM ".build/allocator.o" ".build/allocator.fixed_buffer.o" ".build/allocator.page.o"
 
 # Examples
 $CC $FLAGS -I "include" -o ".build/examples/allocator.fixed_buffer" "examples/fixed_buffer.c" $LIBSTOTEM
+$CC $FLAGS -I "include" -o ".build/examples/allocator.page" "examples/page.c" $LIBSTOTEM
