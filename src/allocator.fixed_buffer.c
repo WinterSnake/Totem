@@ -47,7 +47,7 @@ static void Totem_FixedBufferFree(allocator_ctx_t context, const slice_t memory,
 	if (isLastSlice(ctx, memory))
 		ctx->offset = memory.data - ctx->start;
 }
-static const struct Totem_AllocatorVTable Totem_FixedBufferVTable = {
+static const struct Totem_AllocatorVTable FixedBufferVTable = {
 	.alloc=Totem_FixedBufferAlloc,
 	.resize=Totem_FixedBufferResize,
 	.remap=NULL,
@@ -66,7 +66,7 @@ allocator_t FixedBufferAllocator_GetAllocator(FixedBufferAllocator* const fba)
 {
 	return (allocator_t){
 		.context=fba,
-		.vtable=&Totem_FixedBufferVTable,
+		.vtable=&FixedBufferVTable,
 	};
 }
 void FixedBufferAllocator_Reset(FixedBufferAllocator* const fba)

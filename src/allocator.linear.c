@@ -10,6 +10,7 @@
 AllocatorContext_T(LinearAllocator) LinearContext;
 extern size_t Totem_alignPointer(void**, const uint8_t);
 static bool isLastSlice(LinearContext, const slice_t);
+static bool canFitOrResize(LinearContext, const size_t);
 
 // VTable
 static void* Totem_LinearAlloc(allocator_ctx_t context, size_t length, const uint8_t alignment)
@@ -31,11 +32,8 @@ static void* Totem_LinearAlloc(allocator_ctx_t context, size_t length, const uin
 	void* aligned_pointer = ctx->allocation.data + ctx->offset;
 	size_t padding = Totem_alignPointer(&aligned_pointer, alignment);
 	size_t required_size = ctx->offset + padding + length;
-	if (required_size > ctx->allocation.length)
-	{
-		if (!Totem_RawResize(ctx->parent, &ctx->allocation, required_size, ctx->alignment))
-			return NULL;
-	}
+	if (!canFitOrResize(ctx, required_size))
+		return NULL;
 	ctx->offset = required_size;
 	return aligned_pointer;
 }
@@ -52,11 +50,8 @@ static bool Totem_LinearResize(allocator_ctx_t context, slice_t* const memory, s
 	}
 	size_t previous = memory->data - ctx->allocation.data;
 	size_t required_size = previous + new_length;
-	if (required_size > ctx->allocation.length)
-	{
-		if (!Totem_RawResize(ctx->parent, &ctx->allocation, required_size, ctx->alignment))
-			return false;
-	}
+	if (!canFitOrResize(ctx, required_size))
+		return false;
 	ctx->offset = required_size;
 	memory->length = new_length;
 	return true;
@@ -68,7 +63,7 @@ static void Totem_LinearFree(allocator_ctx_t context, const slice_t memory, cons
 	if (isLastSlice(ctx, memory))
 		ctx->offset = memory.data - ctx->allocation.data;
 }
-static const struct Totem_AllocatorVTable Totem_LinearVTable = {
+static const struct Totem_AllocatorVTable LinearVTable = {
 	.alloc=Totem_LinearAlloc,
 	.resize=Totem_LinearResize,
 	.remap=NULL,
@@ -104,7 +99,7 @@ allocator_t LinearAllocator_GetAllocator(LinearAllocator* const la)
 {
 	return (allocator_t){
 		.context=la,
-		.vtable=&Totem_LinearVTable,
+		.vtable=&LinearVTable,
 	};
 }
 void LinearAllocator_Reset(LinearAllocator* const la)
@@ -126,4 +121,13 @@ void LinearAllocator_Deinit(LinearAllocator* const la)
 static bool isLastSlice(LinearContext ctx, const slice_t slice)
 {
 	return ctx->allocation.data + ctx->offset == slice.data + slice.length;
+}
+static bool canFitOrResize(LinearContext ctx, const size_t length)
+{
+	if (length > ctx->allocation.length)
+	{
+		if (!Totem_RawResize(ctx->parent, &ctx->allocation, length, ctx->alignment))
+			return false;
+	}
+	return true;
 }

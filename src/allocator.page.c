@@ -76,15 +76,16 @@ static void Totem_PageFree(allocator_ctx_t context, const slice_t memory, const 
 	int result = munmap(memory.data, actualLength);
 	assert(result == 0);
 }
-static const struct Totem_AllocatorVTable Totem_PageVTable = {
+static const struct Totem_AllocatorVTable PageVTable = {
 	.alloc=Totem_PageAlloc,
 	.resize=Totem_PageResize,
 	.remap=Totem_PageRemap,
 	.free=Totem_PageFree,
 };
+// API
 static allocator_t _PageAllocator = (allocator_t){
 	.context=NULL,
-	.vtable=&Totem_PageVTable,
+	.vtable=&PageVTable,
 };
 allocator_t* const PageAllocator = &_PageAllocator;
 // Helpers
