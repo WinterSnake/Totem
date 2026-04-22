@@ -6,7 +6,7 @@ Has a VTable interface for generic allocations and custom allocator implementati
 - [x] Fixed Buffer
 - [x] Page
 - [ ] Brk/SBrk
-- [ ] Linear
+- [x] Linear
 - [ ] Stack
 - [ ] Arena
 - [ ] Pool

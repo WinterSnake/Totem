@@ -90,4 +90,20 @@ void FixedBufferAllocator_Reset(FixedBufferAllocator* const fba);
 // --Page--
 extern allocator_t* const PageAllocator;
 
+// --Linear--
+typedef struct Totem_LinearAllocator
+{
+	allocator_t* parent;
+	slice_t allocation;
+	size_t offset;
+	uint8_t alignment;
+} LinearAllocator;
+
+LinearAllocator LinearAllocator_Init(allocator_t* const parent);
+bool LinearAllocator_InitCapacity(LinearAllocator* const la, allocator_t* const parent, const size_t capacity, const uint8_t alignment);
+#define LinearAllocator_Init_T(la, parent, type, count) LinearAllocator_InitCapacity((la), (parent), sizeof(type) * (count), Totem_alignof(type))
+allocator_t LinearAllocator_GetAllocator(LinearAllocator* const la);
+void LinearAllocator_Reset(LinearAllocator* const la);
+void LinearAllocator_Deinit(LinearAllocator* const la);
+
 #endif // !_TOTEM_H
